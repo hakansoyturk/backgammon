@@ -1,8 +1,12 @@
-import com.sun.deploy.nativesandbox.NativeSandboxOutputStream;
-
-import java.io.*;
-import java.security.spec.RSAOtherPrimeInfo;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
 
@@ -15,6 +19,7 @@ public class Oyun {
     static Scanner kareSecimiScanner = new Scanner(System.in);
     static File file = new File("Table.txt");
     static FileWriter fwriter;
+    public static String alanCizimi = "";
 
     static {
         try {
@@ -27,230 +32,185 @@ public class Oyun {
     static BufferedWriter bWriter = new BufferedWriter(fwriter);
     static String siraKimde;
 
-    public Oyun() throws IOException {
+    public Oyun() {
     }
 
-    static boolean gecerliKareMi(String oyuncu,String kare) {
-        if((!alan.get(kare).split(",")[1].equals(" ")) && (alan.get(kare).split(",")[2].equals(oyuncu))) {
-                return true;
-        }
-        else
-            return false;
 
+    public static HashMap<String, String> alan;
+
+    public static void pullariDiz() {
+        alan = new HashMap<>();
+        alan.put("YA", "1,5,Y");
+        alan.put("YB", "2, , ");
+        alan.put("YC", "3, , ");
+        alan.put("YD", "4, , ");
+        alan.put("YE", "5,3,X");
+        alan.put("YF", "6, , ");
+        alan.put("YG", "7,5,X");
+        alan.put("YH", "8, , ");
+        alan.put("YI", "9, , ");
+        alan.put("YJ", "10, , ");
+        alan.put("YK", "11, , ");
+        alan.put("YL", "12,2,Y");
+
+        alan.put("XA", "0,5,X");
+        alan.put("XB", "23, , ");
+        alan.put("XC", "22, , ");
+        alan.put("XD", "21, , ");
+        alan.put("XE", "20,3,Y");
+        alan.put("XF", "19, , ");
+        alan.put("XG", "18,5,Y");
+        alan.put("XH", "17, , ");
+        alan.put("XI", "16, , ");
+        alan.put("XJ", "15, , ");
+        alan.put("XK", "14, , ");
+        alan.put("XL", "13,2,X");
     }
-    static boolean oynanacakKareGecerliMi(int zar,String rakipOyuncu){
-        if(((abs(Integer.valueOf(alan.get(hedefKareSecimi).split(",")[0]) -(Integer.valueOf(alan.get(kaynakKareSecimi).split(",")[0])))< zar)
-                &&(alan.get(hedefKareSecimi).split(",")[1]==" "))) {
 
-            return true;
+    public static void main(String[] args) throws IOException {
+        pullariDiz();
+        tahtayiCiz();
+        kimBaslayacak();
+        oyna(siraKimde); // x
+        while (true) {
+            tahtayiCiz();
+            oyna(rakibiGetir(siraKimde)); // y x y x y
+            siraKimde = rakibiGetir(siraKimde); // y x y x y
         }
-        else if(((abs(Integer.valueOf(alan.get(hedefKareSecimi).split(",")[0]) -(Integer.valueOf(alan.get(kaynakKareSecimi).split(",")[0])))< zar)
-                &&(alan.get(hedefKareSecimi).split(",")[2]==1+rakipOyuncu))) {
-            yKirilanZar++;
-            return true;
-        }
+    }
+
+    public static void oyna(String oyuncu) throws IOException {
+        System.out.println(oyuncu + " - oyuncu zarlarini atiyor...");
+        int birinciZar = zarAt();
+        int ikinciZar = zarAt();
+        int hamleYapilanZar;
+        int hamleYapilanZarBuyuklugu = 0;
+
+        bWriter.append(oyuncu + " " + birinciZar + " " + ikinciZar);
+        System.out.println("Birinci zarinizin degeri: " + birinciZar);
+        System.out.println("Ikinci zarinizin degeri: " + ikinciZar);
+        System.out.println("Hangi zarla hamle yapmak istersiniz?(Birinci zar icin 1, Ikinci zar icin 2'ye basınız");
+        hamleYapilanZar = kareSecimiScanner.nextInt();
+        if (hamleYapilanZar == 1)
+            hamleYapilanZarBuyuklugu = birinciZar;
+        else if (hamleYapilanZar == 2)
+            hamleYapilanZarBuyuklugu = ikinciZar;
         else
-            return false;
+            System.out.println("Yanlis girdi");
+        for (int i = 0; i < 2; i++) {
+            System.out.println("OYNANAN ZAR " + hamleYapilanZarBuyuklugu);
+            System.out.println("Hangi koordinattaki pulunuzu oynamak istersiniz?");
+            kaynakKareSecimi = kareSecimiScanner.next();
+            if (gecerliKareMi(oyuncu, kaynakKareSecimi)) {
+                System.out.println("Hangi kareye oynamak istersiniz?");
+                hedefKareSecimi = kareSecimiScanner.next();
+                String rakip = rakibiGetir(oyuncu);
+                if (oynanacakKareGecerliMi(hamleYapilanZarBuyuklugu, rakip,oyuncu)) {
+                    alaniAzalt(kaynakKareSecimi, oyuncu);
+                    alaniArttir(hedefKareSecimi, oyuncu);
+                }
+                if (hamleYapilanZarBuyuklugu == birinciZar) {
+                    hamleYapilanZarBuyuklugu = ikinciZar;
+                } else {
+                    hamleYapilanZarBuyuklugu = birinciZar;
+                }
+            } else {
+                i--;
+                System.out.println("Gecersiz Kare!");
+            }
+        }
+    }
+
+    public static void alaniAzalt(String adres, String oyuncu) {
+        String hucre = alan.get(adres); // 1,5,Y
+        String[] parcaliAlan = hucre.split(",");
+        int deger = Integer.parseInt(parcaliAlan[1]);
+        --deger;
+        parcaliAlan[1] = String.valueOf(deger);
+        parcaliAlan[2] = oyuncu;
+        hucre = "";
+        // elemanlari birbirine bagladim 1,2,3 seklinde
+        for (int i = 0; i < 3; i++) {
+            hucre += parcaliAlan[i];
+            if (i != 2) {
+                // son elemandan sonra virgul olmamali
+                hucre += ",";
+            }
+        }// guncelleme icin put yapmak gerekli
+        alan.put(adres, hucre);
+    }
+
+    public static void alaniArttir(String adres, String oyuncu) {
+        String hucre = alan.get(adres);
+        String[] parcaliAlan = hucre.split(",");
+        if (parcaliAlan[1].equals(" ")) {
+            parcaliAlan[1] = "1";
+        } else {
+            int kareDegeri = Integer.parseInt(parcaliAlan[1]);
+            ++kareDegeri;
+            parcaliAlan[1] = String.valueOf(kareDegeri);
+        }
+        parcaliAlan[2] = oyuncu;
+        hucre = "";
+        for (int i = 0; i < 3; i++) {
+            hucre += parcaliAlan[i];
+            if (i != 2) {
+                hucre += ",";
+            }
+        }
+        alan.put(adres, hucre);
+    }
+
+    public static String rakibiGetir(String kisi) {
+        return (kisi.equals("Y")) ? "X" : "Y";
     }
 
     static void tahtayiCiz() {
-        String xa = alan.get("XA");
-        String xb = alan.get("XB");
-        String xc = alan.get("XC");
-        String xd = alan.get("XD");
-        String xe = alan.get("XE");
-        String xf = alan.get("XF");
-        String xg = alan.get("XG");
-        String xh = alan.get("XH");
-        String xi = alan.get("XI");
-        String xj = alan.get("XJ");
-        String xk = alan.get("XK");
-        String xl = alan.get("XL");
-
-        String ya = alan.get("YA");
-        String yb = alan.get("YB");
-        String yc = alan.get("YC");
-        String yd = alan.get("YD");
-        String ye = alan.get("YE");
-        String yf = alan.get("YF");
-        String yg = alan.get("YG");
-        String yh = alan.get("YH");
-        String yi = alan.get("YI");
-        String yj = alan.get("YJ");
-        String yk = alan.get("YK");
-        String yl = alan.get("YL");
-
-
-        String[] dizi = ya.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
+        Stream<Map.Entry<String, String>> ustRaf = alan.entrySet().stream().filter(stringStringEntry -> stringStringEntry.getKey().startsWith("Y"));
+        Stream<Map.Entry<String, String>> altRaf = alan.entrySet().stream().filter(stringStringEntry -> stringStringEntry.getKey().startsWith("X"));
+        ustRaf.forEach(stringStringEntry -> {
+            String[] parsedValue = stringStringEntry.getValue().split(",");
+            if (parsedValue[1].equals(" ") && parsedValue[2].equals(" ")) {
+                alanCizimi += "  ";
             } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
+                alanCizimi += (parsedValue[1] + parsedValue[2]);
             }
-
-        }
-
-
-        dizi = yb.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
+        });
+        alanCizimi += "\n";
+        altRaf.forEach(stringStringEntry -> {
+            String[] parsedValue = stringStringEntry.getValue().split(",");
+            if (parsedValue[1].equals(" ") && parsedValue[2].equals(" ")) {
+                alanCizimi += "  ";
             } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
+                alanCizimi += (parsedValue[1] + parsedValue[2]);
             }
+        });
+        System.out.println(alanCizimi);
+        // TODO write to file
+        alanCizimi = "";
+    }
 
+    static boolean gecerliKareMi(String oyuncu, String kare) {
+        return (!alan.get(kare).split(",")[1].equals(" ")) && (alan.get(kare).split(",")[2].equals(oyuncu));
+    }
 
+    static boolean oynanacakKareGecerliMi(int zar, String rakipOyuncu,String oyuncu) {
+        int hedefKare = Integer.parseInt(alan.get(hedefKareSecimi).split(",")[0]);
+        int kaynakKare = (Integer.parseInt(alan.get(kaynakKareSecimi).split(",")[0]));
+        if (!(abs(hedefKare - kaynakKare) == zar)) {
+            return false;
         }
-        dizi = yc.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
+        // oyuncu kendi alani ise de gelebilir
+        if (alan.get(hedefKareSecimi).split(",")[2].equals(oyuncu)) {
+            return true;
+        } else if (alan.get(hedefKareSecimi).split(",")[1].equals(" ")) {
+            return true;
+        } else if (alan.get(hedefKareSecimi).split(",")[2].equals(1 + rakipOyuncu)) {
+            yKirilanZar++;
+            return true;
+        } else {
+            return false;
         }
-        dizi = yd.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = ye.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yf.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yg.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yh.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yi.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yj.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.print("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yk.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.println("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-        dizi = yl.split(",");
-        for (int m = 1; m < 3; m++) {
-            if (dizi[m] == " ") {
-                System.out.println("    ");
-                break;
-            } else {
-                System.out.print(dizi[m]);
-                if (m == 2) {
-                    System.out.print("    ");
-                }
-            }
-
-
-        }
-
     }
 
     static int zarAt() {
@@ -259,11 +219,8 @@ public class Oyun {
     }
 
     static boolean oyunBittiMi() {
-        if ((alan.get("XG").split(",")[1] == " " && alan.get("XH").split(",")[1] == " " && alan.get("XI").split(",")[1] == " " && alan.get("XJ").split(",")[1] == " " && alan.get("XK").split(",")[1] == " " && alan.get("XL").split(",")[1] == " ") ||
-                ((alan.get("YG").split(",")[1] == " " && alan.get("YH").split(",")[1] == " " && alan.get("YI").split(",")[1] == " " && alan.get("YJ").split(",")[1] == " " && alan.get("YK").split(",")[1] == " " && alan.get("YL").split(",")[1] == " "))) {
-            return true;
-        }
-        return false;
+        return (alan.get("XG").split(",")[1].equals(" ") && alan.get("XH").split(",")[1].equals(" ") && alan.get("XI").split(",")[1] == " " && alan.get("XJ").split(",")[1] == " " && alan.get("XK").split(",")[1] == " " && alan.get("XL").split(",")[1] == " ") ||
+            ((alan.get("YG").split(",")[1].equals(" ") && alan.get("YH").split(",")[1].equals(" ") && alan.get("YI").split(",")[1] == " " && alan.get("YJ").split(",")[1] == " " && alan.get("YK").split(",")[1] == " " && alan.get("YL").split(",")[1] == " "));
     }
 
     static int kimBaslayacak() throws IOException {
@@ -296,7 +253,7 @@ public class Oyun {
                 bWriter.newLine();
 
                 return zar2;
-            } else if (zar1 == zar2) {
+            } else {
                 System.out.println("Birinci oyuncunun zari: " + zar1);
                 System.out.println("Ikinci oyuncunun zari: " + zar2);
                 System.out.println("Zarlar esit... Zarlar tekrar atiliyor...");
@@ -306,93 +263,4 @@ public class Oyun {
         return 0;
     }
 
-    public static HashMap<String, String> alan;
-
-    public static void main(String[] args) throws IOException {
-        int sayac=0;
-        alan = new HashMap<>();
-        alan.put("XA", "0,5,X");
-        alan.put("XB", "23, , ");
-        alan.put("XC", "22, , ");
-        alan.put("XD", "21, , ");
-        alan.put("XE", "20,3,Y");
-        alan.put("XF", "19, , ");
-        alan.put("XG", "18,5,Y");
-        alan.put("XH", "17, , ");
-        alan.put("XI", "16, , ");
-        alan.put("XJ", "15, , ");
-        alan.put("XK", "14, , ");
-        alan.put("XL", "13,2,X");
-
-        alan.put("YA", "1,5,Y");
-        alan.put("YB", "2, , ");
-        alan.put("YC", "3, , ");
-        alan.put("YD", "4, , ");
-        alan.put("YE", "5,3,X");
-        alan.put("YF", "6, , ");
-        alan.put("YG", "7,5,X");
-        alan.put("YH", "8, , ");
-        alan.put("YI", "9, , ");
-        alan.put("YJ", "10, , ");
-        alan.put("YK", "11, , ");
-        alan.put("YL", "12,2,Y");
-        kimBaslayacak();
-        //  while(oyunBittiMi()==false){
-        if(sayac==0) {
-            if (siraKimde == "X") {
-                System.out.println("Birinci oyuncu zarlarini atiyor...");
-                int xBirinciZari = zarAt();
-                int xIkinciZari = zarAt();
-                int hamleYapilanZar;
-                int hamleYapilanZarBuyuklugu = 0;
-                int azaltilanKare;
-                int artirilanKare;
-                bWriter.append("X");
-                bWriter.append(" ");
-                bWriter.append(String.valueOf(xBirinciZari));
-                bWriter.append(" ");
-                bWriter.append(String.valueOf(xIkinciZari));
-                System.out.println("Birinci zarinizin degeri: " + xBirinciZari);
-                System.out.println("Ikinci zarinizin degeri: " + xIkinciZari);
-                System.out.println("Hangi zarla hamle yapmak istersiniz?(Birinci zar icin 1, Ikinci zar icin 2'ye basınız");
-                hamleYapilanZar = kareSecimiScanner.nextInt();
-                if (hamleYapilanZar == 1) {
-                    hamleYapilanZarBuyuklugu = xBirinciZari;
-                } else if (hamleYapilanZar == 2)
-                    hamleYapilanZarBuyuklugu = xIkinciZari;
-                else
-                    System.out.println("Yanlis girdi");
-
-                System.out.println("Hangi koordinattaki pulunuzu oynamak istersiniz?");
-                kaynakKareSecimi = kareSecimiScanner.next();
-                if (gecerliKareMi("X", kaynakKareSecimi)==true) {
-                    System.out.println("Hangi kareye oynamak istersiniz?");
-                    hedefKareSecimi = kareSecimiScanner.next();
-                    if (oynanacakKareGecerliMi(hamleYapilanZarBuyuklugu, "Y") == true) {
-                        azaltilanKare = Integer.parseInt(alan.get(kaynakKareSecimi).split(",")[1]);
-                        azaltilanKare--;
-                        alan.get(kaynakKareSecimi).split(",")[1] = String.valueOf(azaltilanKare);
-
-                        artirilanKare = Integer.parseInt(alan.get(hedefKareSecimi).split(",")[1]);
-                        artirilanKare++;
-                        alan.get(hedefKareSecimi).split(",")[1] = String.valueOf(artirilanKare);
-                        sayac++;
-                    }
-                } else
-                    System.out.println("Gecersiz Kare!");
-            }
-        }else if(sayac==1) {
-            int yBirinciZari = zarAt();
-            int yIkinciZari = zarAt();
-            bWriter.append("Y");
-            bWriter.append(" ");
-            bWriter.append(String.valueOf(yBirinciZari));
-            bWriter.append(" ");
-            bWriter.append(String.valueOf(yIkinciZari));
-
-        }
-
-    }
-
-    //  }
 }
