@@ -127,6 +127,12 @@ public class Oyun {
                 if (oynanacakKareGecerliMi(hamleYapilanZarBuyuklugu, rakip, oyuncu)) {
                     alaniAzalt(kaynakKareSecimi, oyuncu);
                     alaniArttir(hedefKareSecimi, oyuncu);
+                    if(xKirilanZar>0){
+                        System.out.println(xKirilanZar);
+                    }
+                    else if(yKirilanZar>0){
+                        System.out.println(yKirilanZar);
+                    }
                 }
                 if (hamleYapilanZarBuyuklugu == birinciZar) {
                     hamleYapilanZarBuyuklugu = ikinciZar;
@@ -227,22 +233,29 @@ public class Oyun {
     static boolean oynanacakKareGecerliMi(int zar, String rakipOyuncu, String oyuncu) {
         int hedefKare = Integer.parseInt(alan.get(hedefKareSecimi).split(",")[0]);
         int kaynakKare = (Integer.parseInt(alan.get(kaynakKareSecimi).split(",")[0]));
-        if (!(abs(hedefKare - kaynakKare) == zar)) {
-            return false;
+        if ((abs(hedefKare - kaynakKare) == zar)) {
+            return true;
         }
         // oyuncu kendi alani ise de gelebilir
         if (alan.get(hedefKareSecimi).split(",")[2].equals(oyuncu)) {
             return true;
         } else if (alan.get(hedefKareSecimi).split(",")[1].equals(" ")) {
             return true;
-        } else if (alan.get(hedefKareSecimi).split(",")[2].equals(1 + rakipOyuncu)) {
-            yKirilanZar++;
-            return true;
+        } else if (alan.get(hedefKareSecimi).split(",")[2].equals(1+rakipOyuncu)) {
+            if(rakipOyuncu.equals("X")){
+                xKirilanZar++;
+                return true;
+            }
+            else if(rakipOyuncu.equals("Y")){
+                yKirilanZar++;
+                return true;
+            }
+
         } else {
             return false;
         }
+        return false;
     }
-
     static int zarAt() {
         Random rand = new Random();
         return (rand.nextInt(6) + 1);
