@@ -8,8 +8,8 @@ import static java.lang.Math.abs;
 public class Oyun {
     static String kaynakKareSecimi;
     static String hedefKareSecimi;
-    static int xKirilanZar;
-    static int yKirilanZar;
+    static int xKirilanZar = 0;
+    static int yKirilanZar = 0;
     static Scanner kareSecimiScanner = new Scanner(System.in);
     static File file = new File("Table.txt");
     static File file2 = new File("Board.txt");
@@ -127,12 +127,6 @@ public class Oyun {
                 if (oynanacakKareGecerliMi(hamleYapilanZarBuyuklugu, rakip, oyuncu)) {
                     alaniAzalt(kaynakKareSecimi, oyuncu);
                     alaniArttir(hedefKareSecimi, oyuncu);
-                    if(xKirilanZar>0){
-                        System.out.println(xKirilanZar);
-                    }
-                    else if(yKirilanZar>0){
-                        System.out.println(yKirilanZar);
-                    }
                 }
                 if (hamleYapilanZarBuyuklugu == birinciZar) {
                     hamleYapilanZarBuyuklugu = ikinciZar;
@@ -170,6 +164,13 @@ public class Oyun {
         String[] parcaliAlan = hucre.split(",");
         if (parcaliAlan[1].equals(" ")) {
             parcaliAlan[1] = "1";
+        } else if (parcaliAlan[1].equals("1") && parcaliAlan[2].equals(rakibiGetir(oyuncu))) {
+            parcaliAlan[1] = "1";
+            if (oyuncu.equals("X")) {
+                yKirilanZar++;
+            } else {
+                xKirilanZar++;
+            }
         } else {
             int kareDegeri = Integer.parseInt(parcaliAlan[1]);
             ++kareDegeri;
@@ -224,6 +225,13 @@ public class Oyun {
         bWriter2.newLine();
         bWriter2.flush();
         alanCizimi = "";
+
+        if (xKirilanZar > 0) {
+            System.out.println("X Kirik: " + xKirilanZar);
+        }
+        if (yKirilanZar > 0) {
+            System.out.println("Y Kirik: " + yKirilanZar);
+        }
     }
 
     static boolean gecerliKareMi(String oyuncu, String kare) {
@@ -241,21 +249,9 @@ public class Oyun {
             return true;
         } else if (alan.get(hedefKareSecimi).split(",")[1].equals(" ")) {
             return true;
-        } else if (alan.get(hedefKareSecimi).split(",")[2].equals(1+rakipOyuncu)) {
-            if(rakipOyuncu.equals("X")){
-                xKirilanZar++;
-                return true;
-            }
-            else if(rakipOyuncu.equals("Y")){
-                yKirilanZar++;
-                return true;
-            }
-
-        } else {
-            return false;
-        }
-        return false;
+        } else return alan.get(hedefKareSecimi).split(",")[2].equals(1 + rakipOyuncu);
     }
+
     static int zarAt() {
         Random rand = new Random();
         return (rand.nextInt(6) + 1);
