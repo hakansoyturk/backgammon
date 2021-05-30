@@ -64,6 +64,16 @@ public class Oyun {
         alan.put("XL", "13,2,X");
     }
 
+    private static String adresiBul(int index) {
+        switch (index) {
+            case 1: {
+                return "YA";
+            }
+            default:
+                return "YA";
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         pullariDiz();
         tahtayiCiz();
@@ -85,6 +95,7 @@ public class Oyun {
 
     private static void eskiDosyalariOku() throws IOException {
         List<String> list = new ArrayList<>();
+        alan = new HashMap<>();
         try {
             Scanner scanner = new Scanner(new File("Board.txt"));
             while (scanner.hasNextLine()) {
@@ -93,6 +104,19 @@ public class Oyun {
             scanner.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+        int size = list.size() - 1;
+        List<String> newList = list.subList(size - 5 + 1, size - 2);
+        String altRaf = newList.get(0);
+        String ustRaf = newList.get(1);
+        String[] _altRaf = altRaf.split("   ");
+        String[] _ustRaf = ustRaf.split("   ");
+        for (int i = 0; i < _altRaf.length; i++) {
+            if (_altRaf[i].contains("X")) {
+
+            } else {
+                alan.put(adresiBul(i + 1), i + 1 + "," + _altRaf[i].charAt(0) + "," + _altRaf[i].charAt(1));
+            }
         }
     }
 
