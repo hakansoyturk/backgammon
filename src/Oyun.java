@@ -1,11 +1,5 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
@@ -18,23 +12,26 @@ public class Oyun {
     static int yKirilanZar;
     static Scanner kareSecimiScanner = new Scanner(System.in);
     static File file = new File("Table.txt");
+    static File file2 = new File("Board.txt");
+
     static FileWriter fwriter;
+    static FileWriter fwriter2;
+
     public static String alanCizimi = "";
 
     static {
         try {
             fwriter = new FileWriter(file, false);
+            fwriter2 = new FileWriter(file2, false);
         } catch (IOException e) {
 
         }
     }
 
     static BufferedWriter bWriter = new BufferedWriter(fwriter);
+    static BufferedWriter bWriter2 = new BufferedWriter(fwriter2);
+
     static String siraKimde;
-
-    public Oyun() {
-    }
-
 
     public static HashMap<String, String> alan;
 
@@ -70,12 +67,32 @@ public class Oyun {
     public static void main(String[] args) throws IOException {
         pullariDiz();
         tahtayiCiz();
+        System.out.println("Yeni oyuna baslamak icin y tusuna basiniz");
+        System.out.print("Eski oyuna devam etmek için c tusuna basiniz");
+        Scanner girdi = new Scanner(System.in);
+        String sonuc = girdi.next();
+        if(sonuc.equals("y"))
         kimBaslayacak();
+        else if(sonuc.equals("c"))
+            eskiDosyalariOku();
         oyna(siraKimde); // x
-        while (true) {
+        while (!oyunBittiMi()) {
             tahtayiCiz();
             oyna(rakibiGetir(siraKimde)); // y x y x y
             siraKimde = rakibiGetir(siraKimde); // y x y x y
+        }
+    }
+
+    private static void eskiDosyalariOku() throws IOException {
+        List<String> list = new ArrayList<>();
+        try {
+            Scanner scanner = new Scanner(new File("Board.txt"));
+            while (scanner.hasNextLine()) {
+              list.add(scanner.nextLine());
+            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -87,9 +104,11 @@ public class Oyun {
         int hamleYapilanZarBuyuklugu = 0;
 
         bWriter.append(oyuncu + " " + birinciZar + " " + ikinciZar);
+        bWriter.newLine();
+        bWriter.flush();
         System.out.println("Birinci zarinizin degeri: " + birinciZar);
         System.out.println("Ikinci zarinizin degeri: " + ikinciZar);
-        System.out.println("Hangi zarla hamle yapmak istersiniz?(Birinci zar icin 1, Ikinci zar icin 2'ye basınız");
+        System.out.println("Hangi zarla hamle yapmak istersiniz?(Birinci zar icin 1, Ikinci zar icin 2'ye basiniz");
         hamleYapilanZar = kareSecimiScanner.nextInt();
         if (hamleYapilanZar == 1)
             hamleYapilanZarBuyuklugu = birinciZar;
@@ -105,7 +124,7 @@ public class Oyun {
                 System.out.println("Hangi kareye oynamak istersiniz?");
                 hedefKareSecimi = kareSecimiScanner.next();
                 String rakip = rakibiGetir(oyuncu);
-                if (oynanacakKareGecerliMi(hamleYapilanZarBuyuklugu, rakip,oyuncu)) {
+                if (oynanacakKareGecerliMi(hamleYapilanZarBuyuklugu, rakip, oyuncu)) {
                     alaniAzalt(kaynakKareSecimi, oyuncu);
                     alaniArttir(hedefKareSecimi, oyuncu);
                 }
@@ -165,28 +184,46 @@ public class Oyun {
         return (kisi.equals("Y")) ? "X" : "Y";
     }
 
-    static void tahtayiCiz() {
+    static void tahtayiCiz() throws IOException {
+        System.out.println("YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL");
+        bWriter2.write("YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL");
+        bWriter2.newLine();
         Stream<Map.Entry<String, String>> ustRaf = alan.entrySet().stream().filter(stringStringEntry -> stringStringEntry.getKey().startsWith("Y"));
         Stream<Map.Entry<String, String>> altRaf = alan.entrySet().stream().filter(stringStringEntry -> stringStringEntry.getKey().startsWith("X"));
         ustRaf.forEach(stringStringEntry -> {
             String[] parsedValue = stringStringEntry.getValue().split(",");
+
             if (parsedValue[1].equals(" ") && parsedValue[2].equals(" ")) {
-                alanCizimi += "  ";
+                alanCizimi += "      ";
+                if (stringStringEntry.getKey().equals("YF")) {
+                    alanCizimi += "  ";
+                }
             } else {
                 alanCizimi += (parsedValue[1] + parsedValue[2]);
             }
         });
         alanCizimi += "\n";
+
         altRaf.forEach(stringStringEntry -> {
             String[] parsedValue = stringStringEntry.getValue().split(",");
             if (parsedValue[1].equals(" ") && parsedValue[2].equals(" ")) {
-                alanCizimi += "  ";
+                alanCizimi += "      ";
+                if (stringStringEntry.getKey().equals("XF")) {
+                    alanCizimi += "  ";
+                }
             } else {
                 alanCizimi += (parsedValue[1] + parsedValue[2]);
             }
         });
         System.out.println(alanCizimi);
-        // TODO write to file
+        System.out.println("XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL");
+        bWriter2.write(alanCizimi);
+        bWriter2.newLine();
+        bWriter2.write("XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL");
+        bWriter2.newLine();
+        bWriter2.write("---------------------------------------------------------");
+        bWriter2.newLine();
+        bWriter2.flush();
         alanCizimi = "";
     }
 
@@ -194,7 +231,7 @@ public class Oyun {
         return (!alan.get(kare).split(",")[1].equals(" ")) && (alan.get(kare).split(",")[2].equals(oyuncu));
     }
 
-    static boolean oynanacakKareGecerliMi(int zar, String rakipOyuncu,String oyuncu) {
+    static boolean oynanacakKareGecerliMi(int zar, String rakipOyuncu, String oyuncu) {
         int hedefKare = Integer.parseInt(alan.get(hedefKareSecimi).split(",")[0]);
         int kaynakKare = (Integer.parseInt(alan.get(kaynakKareSecimi).split(",")[0]));
         if (!(abs(hedefKare - kaynakKare) == zar)) {
@@ -220,14 +257,10 @@ public class Oyun {
 
     static boolean oyunBittiMi() {
         return (alan.get("XG").split(",")[1].equals(" ") && alan.get("XH").split(",")[1].equals(" ") && alan.get("XI").split(",")[1] == " " && alan.get("XJ").split(",")[1] == " " && alan.get("XK").split(",")[1] == " " && alan.get("XL").split(",")[1] == " ") ||
-            ((alan.get("YG").split(",")[1].equals(" ") && alan.get("YH").split(",")[1].equals(" ") && alan.get("YI").split(",")[1] == " " && alan.get("YJ").split(",")[1] == " " && alan.get("YK").split(",")[1] == " " && alan.get("YL").split(",")[1] == " "));
+                ((alan.get("YG").split(",")[1].equals(" ") && alan.get("YH").split(",")[1].equals(" ") && alan.get("YI").split(",")[1] == " " && alan.get("YJ").split(",")[1] == " " && alan.get("YK").split(",")[1] == " " && alan.get("YL").split(",")[1] == " "));
     }
 
     static int kimBaslayacak() throws IOException {
-        System.out.print("Oyuna baslamak icin h tusuna basiniz");
-        Scanner girdi = new Scanner(System.in);
-        String sonuc = girdi.next();
-        if (sonuc.equals("h")) {
             int zar1, zar2;
             zar1 = zarAt();
             zar2 = zarAt();
@@ -240,6 +273,7 @@ public class Oyun {
                 bWriter.newLine();
                 bWriter.write(String.valueOf(zar2));
                 bWriter.newLine();
+                bWriter.flush();
 
                 return zar1;
             } else if (zar2 > zar1) {
@@ -251,7 +285,7 @@ public class Oyun {
                 bWriter.newLine();
                 bWriter.write(String.valueOf(zar2));
                 bWriter.newLine();
-
+                bWriter.flush();
                 return zar2;
             } else {
                 System.out.println("Birinci oyuncunun zari: " + zar1);
@@ -259,7 +293,6 @@ public class Oyun {
                 System.out.println("Zarlar esit... Zarlar tekrar atiliyor...");
                 kimBaslayacak();
             }
-        }
         return 0;
     }
 
