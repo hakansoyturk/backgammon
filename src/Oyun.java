@@ -71,9 +71,9 @@ public class Oyun {
         System.out.print("Eski oyuna devam etmek için c tusuna basiniz");
         Scanner girdi = new Scanner(System.in);
         String sonuc = girdi.next();
-        if(sonuc.equals("y"))
-        kimBaslayacak();
-        else if(sonuc.equals("c"))
+        if (sonuc.equals("y"))
+            kimBaslayacak();
+        else if (sonuc.equals("c"))
             eskiDosyalariOku();
         oyna(siraKimde); // x
         while (!oyunBittiMi()) {
@@ -88,7 +88,7 @@ public class Oyun {
         try {
             Scanner scanner = new Scanner(new File("Board.txt"));
             while (scanner.hasNextLine()) {
-              list.add(scanner.nextLine());
+                list.add(scanner.nextLine());
             }
             scanner.close();
         } catch (FileNotFoundException e) {
@@ -192,14 +192,10 @@ public class Oyun {
         Stream<Map.Entry<String, String>> altRaf = alan.entrySet().stream().filter(stringStringEntry -> stringStringEntry.getKey().startsWith("X"));
         ustRaf.forEach(stringStringEntry -> {
             String[] parsedValue = stringStringEntry.getValue().split(",");
-
             if (parsedValue[1].equals(" ") && parsedValue[2].equals(" ")) {
-                alanCizimi += "      ";
-                if (stringStringEntry.getKey().equals("YF")) {
-                    alanCizimi += "  ";
-                }
+                alanCizimi += "     ";
             } else {
-                alanCizimi += (parsedValue[1] + parsedValue[2]);
+                alanCizimi += (parsedValue[1] + parsedValue[2]) + "   ";
             }
         });
         alanCizimi += "\n";
@@ -207,12 +203,9 @@ public class Oyun {
         altRaf.forEach(stringStringEntry -> {
             String[] parsedValue = stringStringEntry.getValue().split(",");
             if (parsedValue[1].equals(" ") && parsedValue[2].equals(" ")) {
-                alanCizimi += "      ";
-                if (stringStringEntry.getKey().equals("XF")) {
-                    alanCizimi += "  ";
-                }
+                alanCizimi += "     ";
             } else {
-                alanCizimi += (parsedValue[1] + parsedValue[2]);
+                alanCizimi += (parsedValue[1] + parsedValue[2] + "   ");
             }
         });
         System.out.println(alanCizimi);
@@ -257,42 +250,42 @@ public class Oyun {
 
     static boolean oyunBittiMi() {
         return (alan.get("XG").split(",")[1].equals(" ") && alan.get("XH").split(",")[1].equals(" ") && alan.get("XI").split(",")[1] == " " && alan.get("XJ").split(",")[1] == " " && alan.get("XK").split(",")[1] == " " && alan.get("XL").split(",")[1] == " ") ||
-                ((alan.get("YG").split(",")[1].equals(" ") && alan.get("YH").split(",")[1].equals(" ") && alan.get("YI").split(",")[1] == " " && alan.get("YJ").split(",")[1] == " " && alan.get("YK").split(",")[1] == " " && alan.get("YL").split(",")[1] == " "));
+            ((alan.get("YG").split(",")[1].equals(" ") && alan.get("YH").split(",")[1].equals(" ") && alan.get("YI").split(",")[1] == " " && alan.get("YJ").split(",")[1] == " " && alan.get("YK").split(",")[1] == " " && alan.get("YL").split(",")[1] == " "));
     }
 
     static int kimBaslayacak() throws IOException {
-            int zar1, zar2;
-            zar1 = zarAt();
-            zar2 = zarAt();
-            if (zar1 > zar2) {
-                System.out.println("Birinci oyuncunun zari: " + zar1);
-                System.out.println("Ikinci oyuncunun zari: " + zar2);
-                System.out.println("Oyuna birinci oyuncu baslayacak.");
-                siraKimde = "X";
-                bWriter.write(String.valueOf(zar1));
-                bWriter.newLine();
-                bWriter.write(String.valueOf(zar2));
-                bWriter.newLine();
-                bWriter.flush();
+        int zar1, zar2;
+        zar1 = zarAt();
+        zar2 = zarAt();
+        if (zar1 > zar2) {
+            System.out.println("Birinci oyuncunun zari: " + zar1);
+            System.out.println("Ikinci oyuncunun zari: " + zar2);
+            System.out.println("Oyuna birinci oyuncu baslayacak.");
+            siraKimde = "X";
+            bWriter.write(String.valueOf(zar1));
+            bWriter.newLine();
+            bWriter.write(String.valueOf(zar2));
+            bWriter.newLine();
+            bWriter.flush();
 
-                return zar1;
-            } else if (zar2 > zar1) {
-                System.out.println("Birinci oyuncunun zari: " + zar1);
-                System.out.println("Ikinci oyuncunun zari: " + zar2);
-                System.out.println("Oyuna ikinci oyuncu baslayacak.");
-                siraKimde = "Y";
-                bWriter.write(String.valueOf(zar1));
-                bWriter.newLine();
-                bWriter.write(String.valueOf(zar2));
-                bWriter.newLine();
-                bWriter.flush();
-                return zar2;
-            } else {
-                System.out.println("Birinci oyuncunun zari: " + zar1);
-                System.out.println("Ikinci oyuncunun zari: " + zar2);
-                System.out.println("Zarlar esit... Zarlar tekrar atiliyor...");
-                kimBaslayacak();
-            }
+            return zar1;
+        } else if (zar2 > zar1) {
+            System.out.println("Birinci oyuncunun zari: " + zar1);
+            System.out.println("Ikinci oyuncunun zari: " + zar2);
+            System.out.println("Oyuna ikinci oyuncu baslayacak.");
+            siraKimde = "Y";
+            bWriter.write(String.valueOf(zar1));
+            bWriter.newLine();
+            bWriter.write(String.valueOf(zar2));
+            bWriter.newLine();
+            bWriter.flush();
+            return zar2;
+        } else {
+            System.out.println("Birinci oyuncunun zari: " + zar1);
+            System.out.println("Ikinci oyuncunun zari: " + zar2);
+            System.out.println("Zarlar esit... Zarlar tekrar atiliyor...");
+            kimBaslayacak();
+        }
         return 0;
     }
 
