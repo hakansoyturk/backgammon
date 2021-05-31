@@ -3,16 +3,14 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
-
-
 public class Oyun {
     static String kaynakKareSecimi;
     static String hedefKareSecimi;
     static int xKirilanZar = 0;
     static int yKirilanZar = 0;
     static Scanner kareSecimiScanner = new Scanner(System.in);
-    static File file = new File("Table.txt");
-    static File file2 = new File("Board.txt");
+    static File file = new File("Dice.txt");
+    static File file2 = new File("Table.txt");
 
     static FileWriter fwriter;
     static FileWriter fwriter2;
@@ -66,11 +64,58 @@ public class Oyun {
 
     private static String adresiBul(int index) {
         switch (index) {
+            case 0: {
+                return "XA";
+            }
             case 1: {
                 return "YA";
             }
+            case 2:
+                return "YB";
+            case 3:
+                return "YC";
+            case 4:
+                return "YD";
+            case 5:
+                return "YE";
+            case 6:
+                return "YF";
+            case 7:
+                return "YG";
+            case 8:
+                return "YH";
+            case 9:
+                return "YI";
+            case 10:
+                return "YJ";
+            case 11:
+                return "YK";
+            case 12:
+                return "YL";
+            case 23:
+                return "XB";
+            case 22:
+                return "XC";
+            case 21:
+                return "XD";
+            case 20:
+                return "XE";
+            case 19:
+                return "XF";
+            case 18:
+                return "XG";
+            case 17:
+                return "XH";
+            case 16:
+                return "XI";
+            case 15:
+                return "XJ";
+            case 14:
+                return "XK";
+            case 13:
+                return "XL";
             default:
-                return "YA";
+                return "YK";
         }
     }
 
@@ -97,7 +142,7 @@ public class Oyun {
         List<String> list = new ArrayList<>();
         alan = new HashMap<>();
         try {
-            Scanner scanner = new Scanner(new File("Board.txt"));
+            Scanner scanner = new Scanner(new File("Table.txt"));
             while (scanner.hasNextLine()) {
                 list.add(scanner.nextLine());
             }
@@ -105,19 +150,27 @@ public class Oyun {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        int size = list.size() - 1;
-        List<String> newList = list.subList(size - 5 + 1, size - 2);
-        String altRaf = newList.get(0);
-        String ustRaf = newList.get(1);
-        String[] _altRaf = altRaf.split("   ");
+        int size = list.size();
+        List<String> newList = list.subList(size - 4, size - 2);
+        String ustRaf = newList.get(0);
+        String altRaf = newList.get(1);
         String[] _ustRaf = ustRaf.split("   ");
-        for (int i = 0; i < _altRaf.length; i++) {
-            if (_altRaf[i].contains("X")) {
-
-            } else {
-                alan.put(adresiBul(i + 1), i + 1 + "," + _altRaf[i].charAt(0) + "," + _altRaf[i].charAt(1));
+        String[] _altRaf = altRaf.split("   ");
+        for (int i = 0; i < _ustRaf.length; i++) {
+            if (_ustRaf[i].contains("X")) {
+                alan.put(adresiBul(i+1), i +1+ "," + _ustRaf[i].charAt(0) + "," + _ustRaf[i].charAt(1));
+            } else if (_ustRaf[i].contains("Y")){
+                alan.put(adresiBul(i+1), i  +1+ "," + _ustRaf[i].charAt(0) + "," + _ustRaf[i].charAt(1));
             }
         }
+//        for (int i = 0; i < _altRaf.length; i++) {
+//            if (_altRaf[i].contains("X")) {
+//                alan.put(adresiBul(i), i + 1 + "," + _altRaf[i].charAt(0) + "," + _altRaf[i].charAt(1));
+//            } else if(_altRaf[i].contains("Y")) {
+//                alan.put(adresiBul(i), i + 1 + "," + _altRaf[i].charAt(0) + "," + _altRaf[i].charAt(1));
+//            }
+//        }
+        tahtayiCiz();
     }
 
     public static void oyna(String oyuncu) throws IOException {
@@ -159,7 +212,7 @@ public class Oyun {
                 }
             } else {
                 i--;
-                System.out.println("Gecersiz Kare!");
+                System.out.println("Gecersiz kaynak kare!");
             }
         }
     }
@@ -245,17 +298,22 @@ public class Oyun {
         bWriter2.newLine();
         bWriter2.write("XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL");
         bWriter2.newLine();
+        if (xKirilanZar > 0) {
+            System.out.println("X Kirik: " + xKirilanZar);
+            bWriter2.append(String.valueOf("X'in kirik zar miktari: " + xKirilanZar));
+            bWriter2.newLine();
+        }
+        if (yKirilanZar > 0) {
+            System.out.println("Y Kirik: " + yKirilanZar);
+            bWriter2.append(String.valueOf("Y'nin kirik zar miktari: " + yKirilanZar));
+            bWriter2.newLine();
+        }
         bWriter2.write("---------------------------------------------------------");
         bWriter2.newLine();
         bWriter2.flush();
         alanCizimi = "";
 
-        if (xKirilanZar > 0) {
-            System.out.println("X Kirik: " + xKirilanZar);
-        }
-        if (yKirilanZar > 0) {
-            System.out.println("Y Kirik: " + yKirilanZar);
-        }
+
     }
 
     static boolean gecerliKareMi(String oyuncu, String kare) {
@@ -265,15 +323,15 @@ public class Oyun {
     static boolean oynanacakKareGecerliMi(int zar, String rakipOyuncu, String oyuncu) {
         int hedefKare = Integer.parseInt(alan.get(hedefKareSecimi).split(",")[0]);
         int kaynakKare = (Integer.parseInt(alan.get(kaynakKareSecimi).split(",")[0]));
-        if ((abs(hedefKare - kaynakKare) == zar)) {
+        if (((abs(hedefKare - kaynakKare) == zar) && (alan.get(hedefKareSecimi).split(",")[1].equals(" ")))
+        ||((abs(hedefKare - kaynakKare) == zar) && (alan.get(hedefKareSecimi).split(",")[2].equals(oyuncu)))
+            || ((abs(hedefKare - kaynakKare) == zar) && alan.get(hedefKareSecimi).split(",")[2].equals(1 + rakipOyuncu))){
             return true;
         }
+        System.out.println("gecersiz oynanacak kare!");
+        return false;
         // oyuncu kendi alani ise de gelebilir
-        if (alan.get(hedefKareSecimi).split(",")[2].equals(oyuncu)) {
-            return true;
-        } else if (alan.get(hedefKareSecimi).split(",")[1].equals(" ")) {
-            return true;
-        } else return alan.get(hedefKareSecimi).split(",")[2].equals(1 + rakipOyuncu);
+
     }
 
     static int zarAt() {
@@ -321,5 +379,4 @@ public class Oyun {
         }
         return 0;
     }
-
 }

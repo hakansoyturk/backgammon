@@ -1,6 +1,10 @@
-3
-2
-X 6 5
-Y 1 2
-X 5 2
-Y 2 5
+YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL
+5Y                  3X        5X                       2Y   
+5X                  3Y        5Y                       2X   
+XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL
+---------------------------------------------------------
+YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL
+     5Y   3X   
+     
+XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL
+---------------------------------------------------------

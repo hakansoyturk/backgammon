@@ -1,20 +1,5 @@
 YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL
-5Y                  3X        5X                       2Y   
+5Y   3X             3X        5X                       2Y
 5X                  3Y        5Y                       2X   
-XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL
----------------------------------------------------------
-YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL
-5Y                  4X   1X   5X                       2Y   
-3X                  3Y        5Y                       2X   
-XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL
----------------------------------------------------------
-YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL
-5Y                  4X   1X   5X             1Y   1Y   0Y   
-3X                  3Y        5Y                       2X   
-XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL
----------------------------------------------------------
-YA   YB   YC   YD   YE   YF   YG   YH   YI   YJ   YK   YL
-5Y                  2X   1X   6X             2X   1Y   0Y   
-3X                  3Y        5Y                       2X   
 XA   XB   XC   XD   XE   XF   XG   XH   XI   XJ   XK   XL
 ---------------------------------------------------------
